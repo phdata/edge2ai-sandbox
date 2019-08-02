@@ -50,8 +50,8 @@ Below are instructions for creating the cluster with or without CDSW service. CD
 ```
 $ sudo su -
 $ yum install -y git
-$ git clone https://github.com/fabiog1901/OneNodeCDHCluster.git
-$ cd OneNodeCDHCluster
+$ git clone https://github.com/phdata/edge2ai-sandbox
+$ cd edge2ai-sandbox
 $ chmod +x setup.sh
 ```
 
@@ -115,8 +115,8 @@ ssh -i ~/.ssh/<aws_key.pem> centos@<aws_public_ip>
 ```
 sudo su -
 yum install -y git
-git clone https://github.com/fabiog1901/OneNodeCDHCluster.git
-cd OneNodeCDHCluster
+git clone https://github.com/phdata/edge2ai-sandbox
+cd edge2ai-sandbox
 chmod +x setup.sh
 ```
 
