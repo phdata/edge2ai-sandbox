@@ -80,11 +80,11 @@ cp ~/mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/
 
 echo "------------------------------------------------------"
 echo "-- Create DBs required by CM"
-mysql -u root < ~/OneNodeCDHCluster/create_db.sql
+mysql -u root < ~/edge2ai-sandbox/create_db.sql
 
 echo "------------------------------------------------------"
 echo "-- Secure MariaDB"
-mysql -u root < ~/OneNodeCDHCluster/secure_mariadb.sql
+mysql -u root < ~/edge2ai-sandbox/secure_mariadb.sql
 
 echo "------------------------------------------------------"
 echo "-- Prepare CM database 'scm'"
@@ -120,8 +120,8 @@ yum install -y python-pip
 pip install --upgrade pip
 pip install cm_client
 
-sed -i "s/YourHostName/`hostname`/g" ~/OneNodeCDHCluster/$TEMPLATE
-sed -i "s/YourHostName/`hostname`/g" ~/OneNodeCDHCluster/create_cluster.py
-python ~/OneNodeCDHCluster/create_cluster.py $TEMPLATE
+sed -i "s/YourHostName/`hostname`/g" ~/edge2ai-sandbox/$TEMPLATE
+sed -i "s/YourHostName/`hostname`/g" ~/edge2ai-sandbox/create_cluster.py
+python ~/edge2ai-sandbox/create_cluster.py $TEMPLATE
 
 echo "-- At this point you can login into Cloudera Manager host on port 7180 and follow the deployment of the cluster"

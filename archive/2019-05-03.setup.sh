@@ -79,10 +79,10 @@ mkdir -p /usr/share/java/
 cp ~/mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
 
 echo "-- Create DBs required by CM"
-mysql -u root < ~/OneNodeCDHCluster/create_db.sql
+mysql -u root < ~/edge2ai-sandbox/create_db.sql
 
 echo "-- Secure MariaDB"
-mysql -u root < ~/OneNodeCDHCluster/secure_mariadb.sql
+mysql -u root < ~/edge2ai-sandbox/secure_mariadb.sql
 
 echo "-- Prepare CM database 'scm'"
 /opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm cloudera
@@ -112,13 +112,13 @@ yum install -y python-pip
 pip install --upgrade pip
 pip install cm_client
 
-sed -i "s/YourHostname/`hostname -f`/g" ~/OneNodeCDHCluster/$TEMPLATE
-sed -i "s/YourCDSWDomain/cdsw.$PUBLIC_IP.nip.io/g" ~/OneNodeCDHCluster/$TEMPLATE
-sed -i "s/YourPrivateIP/`hostname -I | tr -d '[:space:]'`/g" ~/OneNodeCDHCluster/$TEMPLATE
-sed -i "s#YourDockerDevice#$DOCKERDEVICE#g" ~/OneNodeCDHCluster/$TEMPLATE
+sed -i "s/YourHostname/`hostname -f`/g" ~/edge2ai-sandbox/$TEMPLATE
+sed -i "s/YourCDSWDomain/cdsw.$PUBLIC_IP.nip.io/g" ~/edge2ai-sandbox/$TEMPLATE
+sed -i "s/YourPrivateIP/`hostname -I | tr -d '[:space:]'`/g" ~/edge2ai-sandbox/$TEMPLATE
+sed -i "s#YourDockerDevice#$DOCKERDEVICE#g" ~/edge2ai-sandbox/$TEMPLATE
 
-sed -i "s/YourHostname/`hostname -f`/g" ~/OneNodeCDHCluster/create_cluster.py
+sed -i "s/YourHostname/`hostname -f`/g" ~/edge2ai-sandbox/create_cluster.py
 
-python ~/OneNodeCDHCluster/create_cluster.py $TEMPLATE
+python ~/edge2ai-sandbox/create_cluster.py $TEMPLATE
 
 echo "-- At this point you can login into Cloudera Manager host on port 7180 and follow the deployment of the cluster"

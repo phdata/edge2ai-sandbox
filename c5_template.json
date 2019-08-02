@@ -1,7 +1,7 @@
 {
    "cdhVersion":"5.16.1",
    "cmVersion":"6.2.0",
-   "displayName":"OneNodeC5",
+   "displayName":"Edge2AI SandboxC5",
    "hostTemplates":[
       {
          "cardinality":1,
@@ -40,7 +40,7 @@
       }
    ],
    "instantiator":{
-      "clusterName":"OneNodeC5",
+      "clusterName":"Edge2AI SandboxC5",
       "hosts":[
          {
             "hostName":"YourHostname",

@@ -1,4 +1,4 @@
-# One Node EDGE2AI CDH Cluster
+# One Node Edge2AI CDH Cluster
 
 This script automatically sets up a CDH cluster in the public cloud (AWS or Azure) on a single VM with the following 16 services:
 
@@ -48,11 +48,11 @@ Below are instructions for creating the cluster with or without CDSW service. CD
 - ssh into VM and copy this repo.
 
 ```
-$ sudo su -
-$ yum install -y git
-$ git clone https://github.com/phdata/edge2ai-sandbox
-$ cd edge2ai-sandbox
-$ chmod +x setup.sh
+sudo su -
+yum install -y git
+git clone https://github.com/phdata/edge2ai-sandbox
+cd edge2ai-sandbox
+chmod +x setup.sh
 ```
 
 The script `setup.sh` takes 3 arguments:
@@ -62,12 +62,12 @@ The script `setup.sh` takes 3 arguments:
 
 Example: create cluster without CDSW on AWS using default_template.json
 ```
-$ ./setup.sh aws default_template.json
+./setup.sh aws default_template.json
 ```
 
 Example: create cluster with CDSW on Azure using cdsw_template.json
 ```
-$ ./setup.sh azure cdsw_template.json /dev/sdc
+./setup.sh azure cdsw_template.json /dev/sdc
 ```
 
 Wait until the script finishes, check for any error.
