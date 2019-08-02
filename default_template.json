@@ -1,7 +1,7 @@
 {
   "cdhVersion": "6.2.0",
   "cmVersion": "6.2.0",
-  "displayName": "Edge2AI SandboxCluster",
+  "displayName": "Edge2AI Sandbox Cluster",
   "hostTemplates": [
     {
       "cardinality": 1,
@@ -37,7 +37,7 @@
     }
   ],
   "instantiator": {
-    "clusterName": "Edge2AI SandboxCluster",
+    "clusterName": "Edge2AI Sandbox Cluster",
     "hosts": [
       {
         "hostName": "YourHostname",
