@@ -62,12 +62,12 @@ The script `setup.sh` takes 3 arguments:
 
 Example: create cluster without CDSW on AWS using default_template.json
 ```
-./setup.sh aws default_template.json
+./setup.sh aws templates/default_template.json
 ```
 
 Example: create cluster with CDSW on Azure using cdsw_template.json
 ```
-./setup.sh azure cdsw_template.json /dev/sdc
+./setup.sh azure templates/cdsw_template.json /dev/sdc
 ```
 
 Wait until the script finishes, check for any error.
@@ -125,7 +125,7 @@ chmod +x setup.sh
 This example is demonstrating how to build a CDSW enabled instance with CDH. Based on the build thus far the following buildout could be used.
 
 ```
-./setup.sh aws cdsw_template.json /dev/xvdb
+./setup.sh aws templates/cdsw_template.json /dev/xvdb
 ```
 
 **Note**: This will run for 10-20 minutes and once complete the cluster should be accessible.
@@ -170,7 +170,7 @@ nvme0n1     259:1    0  100G  0 disk
 +-nvme0n1p1 259:2    0  100G  0 part /
 nvme1n1     259:0    0 1000G  0 disk
 
-$ ./setup.sh aws cdsw_template.json /dev/nvme1n1
+$ ./setup.sh aws templates/cdsw_template.json /dev/nvme1n1
 ```
 
 Azure Standard D8s v3 or Standard D16s v3
@@ -186,7 +186,7 @@ sdb      8:16   0   56G  0 disk
 sdc      8:32   0 1000G  0 disk
 sr0     11:0    1  628K  0 rom
 
-$ ./setup.sh azure cdsw_template.json /dev/sdc
+$ ./setup.sh azure templates/cdsw_template.json /dev/sdc
 ```
 
 GCP n1-standard-8 or n1-standard-16
@@ -197,5 +197,5 @@ sda      8:0    0  100G  0 disk
 └─sda1   8:1    0  100G  0 part /
 sdb      8:16   0 1000G  0 disk
 
-$ ./setup.sh gcp cdsw_template.json /dev/sdb
+$ ./setup.sh gcp templates/cdsw_template.json /dev/sdb
 ```

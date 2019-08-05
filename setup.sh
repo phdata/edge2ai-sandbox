@@ -1,5 +1,4 @@
 #! /bin/bash
-
 echo "-- Configure and optimize the OS"
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
@@ -27,10 +26,6 @@ case "$1" in
             ;;
         gcp)
             ;;
-        openstack)
-            echo "Not supported yet!"
-            exit 1
-            ;;
         *)
             echo $"Usage: $0 {aws|azure|gcp} template-file [docker-device]"
             echo $"example: ./setup.sh azure default_template.json"
@@ -48,7 +43,6 @@ PUBLIC_IP=`curl https://api.ipify.org/`
 hostnamectl set-hostname `hostname -f`
 echo "`hostname -I` `hostname`" >> /etc/hosts
 sed -i "s/HOSTNAME=.*/HOSTNAME=`hostname`/" /etc/sysconfig/network
-iptables-save > ~/firewall.rules
 systemctl disable firewalld
 systemctl stop firewalld
 setenforce 0
@@ -56,7 +50,7 @@ sed -i 's/SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 
 
 echo "-- Install CM and MariaDB repo"
-wget https://archive.cloudera.com/cm6/6.2.0/redhat7/yum/cloudera-manager.repo -P /etc/yum.repos.d/
+wget https://archive.cloudera.com/cm6/6.3.0/redhat7/yum/cloudera-manager.repo -P /etc/yum.repos.d/
 
 ## MariaDB 10.1
 cat - >/etc/yum.repos.d/MariaDB.repo <<EOF
@@ -73,7 +67,7 @@ yum repolist
 
 yum install -y cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server
 yum install -y MariaDB-server MariaDB-client
-cat mariadb.config > /etc/my.cnf
+cat conf/mariadb.config > /etc/my.cnf
 
 
 echo "--Enable and start MariaDB"
@@ -85,23 +79,35 @@ wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46
 tar zxf ~/mysql-connector-java-5.1.46.tar.gz -C ~
 mkdir -p /usr/share/java/
 cp ~/mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar
+rm -rf ~/mysql-connector-java-5.1.46*
 
 echo "-- Create DBs required by CM"
-mysql -u root < ~/edge2ai-sandbox/create_db.sql
+mysql -u root < ~/edge2ai-sandbox/scripts/create_db.sql
 
 echo "-- Secure MariaDB"
-mysql -u root < ~/edge2ai-sandbox/secure_mariadb.sql
+mysql -u root < ~/edge2ai-sandbox/scripts/secure_mariadb.sql
 
 echo "-- Prepare CM database 'scm'"
 /opt/cloudera/cm/schema/scm_prepare_database.sh mysql scm scm cloudera
 
 echo "-- Install CSDs"
+# install local CSDs
+mv ~/*.jar /opt/cloudera/csd/
+
 wget https://archive.cloudera.com/CFM/csd/1.0.0.0/NIFI-1.9.0.1.0.0.0-90.jar -P /opt/cloudera/csd/
 wget https://archive.cloudera.com/CFM/csd/1.0.0.0/NIFICA-1.9.0.1.0.0.0-90.jar -P /opt/cloudera/csd/
 wget https://archive.cloudera.com/CFM/csd/1.0.0.0/NIFIREGISTRY-0.3.0.1.0.0.0-90.jar -P /opt/cloudera/csd/
-wget https://archive.cloudera.com/cdsw1/1.5.0/csd/CLOUDERA_DATA_SCIENCE_WORKBENCH-CDH6-1.5.0.jar -P /opt/cloudera/csd/
+wget https://archive.cloudera.com/cdsw1/1.6.0/csd/CLOUDERA_DATA_SCIENCE_WORKBENCH-CDH6-1.6.0.jar -P /opt/cloudera/csd/
+# CSD for C5
+wget https://archive.cloudera.com/cdsw1/1.6.0/csd/CLOUDERA_DATA_SCIENCE_WORKBENCH-CDH5-1.6.0.jar -P /opt/cloudera/csd/
+wget https://archive.cloudera.com/spark2/csd/SPARK2_ON_YARN-2.4.0.cloudera1.jar -P /opt/cloudera/csd/
+
 chown cloudera-scm:cloudera-scm /opt/cloudera/csd/*
 chmod 644 /opt/cloudera/csd/*
+
+echo "-- Install local parcels"
+mv ~/*.parcel ~/*.parcel.sha /opt/cloudera/parcel-repo/
+chown cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo/*
 
 echo "-- Install CEM Tarballs"
 mkdir -p /opt/cloudera/cem
@@ -118,13 +124,25 @@ chown -R root:root /opt/cloudera/cem/efm-1.0.0.1.0.0.0-54
 chown -R root:root /opt/cloudera/cem/minifi-0.6.0.1.0.0.0-54
 chown -R root:root /opt/cloudera/cem/minifi-toolkit-0.6.0.1.0.0.0-54
 rm -f /opt/cloudera/cem/efm/conf/efm.properties
-cp ~/edge2ai-sandbox/efm.properties /opt/cloudera/cem/efm/conf
+cp ~/edge2ai-sandbox/conf/efm.properties /opt/cloudera/cem/efm/conf
 rm -f /opt/cloudera/cem/minifi/conf/bootstrap.conf
-cp ~/edge2ai-sandbox/bootstrap.conf /opt/cloudera/cem/minifi/conf
+cp ~/edge2ai-sandbox/conf/bootstrap.conf /opt/cloudera/cem/minifi/conf
 sed -i "s/YourHostname/`hostname -f`/g" /opt/cloudera/cem/efm/conf/efm.properties
 sed -i "s/YourHostname/`hostname -f`/g" /opt/cloudera/cem/minifi/conf/bootstrap.conf
 /opt/cloudera/cem/minifi/bin/minifi.sh install
 
+echo "-- Configure MiNiFi to run MQTT NAR"
+wget http://central.maven.org/maven2/org/apache/nifi/nifi-mqtt-nar/1.8.0/nifi-mqtt-nar-1.8.0.nar -P /opt/cloudera/cem/minifi/lib
+chown root:root /opt/cloudera/cem/minifi/lib/nifi-mqtt-nar-1.8.0.nar
+chmod 660 /opt/cloudera/cem/minifi/lib/nifi-mqtt-nar-1.8.0.nar
+
+echo "-- Install MQTT"
+yum install -y mosquitto
+pip install paho-mqtt
+systemctl enable mosquitto
+systemctl start mosquitto
+git clone https://github.com/phdata/edge2ai-workshop
+mv edge2ai-workshop/mqtt.* ~
 
 echo "-- Enable passwordless root login via rsa key"
 ssh-keygen -f ~/myRSAkey -t rsa -N ""
@@ -156,9 +174,9 @@ sed -i "s/YourCDSWDomain/cdsw.$PUBLIC_IP.nip.io/g" ~/edge2ai-sandbox/$TEMPLATE
 sed -i "s/YourPrivateIP/`hostname -I | tr -d '[:space:]'`/g" ~/edge2ai-sandbox/$TEMPLATE
 sed -i "s#YourDockerDevice#$DOCKERDEVICE#g" ~/edge2ai-sandbox/$TEMPLATE
 
-sed -i "s/YourHostname/`hostname -f`/g" ~/edge2ai-sandbox/create_cluster.py
+sed -i "s/YourHostname/`hostname -f`/g" ~/edge2ai-sandbox/scripts/create_cluster.py
 
-python ~/edge2ai-sandbox/create_cluster.py $TEMPLATE
+python ~/edge2ai-sandbox/scripts/create_cluster.py $TEMPLATE
 
 # configure and start EFM and Minifi
 service efm start
