@@ -136,14 +136,6 @@ wget http://central.maven.org/maven2/org/apache/nifi/nifi-mqtt-nar/1.8.0/nifi-mq
 chown root:root /opt/cloudera/cem/minifi/lib/nifi-mqtt-nar-1.8.0.nar
 chmod 660 /opt/cloudera/cem/minifi/lib/nifi-mqtt-nar-1.8.0.nar
 
-echo "-- Install MQTT"
-yum install -y mosquitto
-pip install paho-mqtt
-systemctl enable mosquitto
-systemctl start mosquitto
-git clone https://github.com/phdata/edge2ai-workshop
-mv edge2ai-workshop/mqtt.* ~
-
 echo "-- Enable passwordless root login via rsa key"
 ssh-keygen -f ~/myRSAkey -t rsa -N ""
 mkdir ~/.ssh
@@ -178,7 +170,15 @@ sed -i "s/YourHostname/`hostname -f`/g" ~/edge2ai-sandbox/scripts/create_cluster
 
 python ~/edge2ai-sandbox/scripts/create_cluster.py $TEMPLATE
 
-# configure and start EFM and Minifi
+echo "-- Install Mosquitto and MQTT"
+yum install -y mosquitto
+pip install paho-mqtt
+systemctl enable mosquitto
+systemctl start mosquitto
+git clone https://github.com/phdata/edge2ai-workshop
+mv edge2ai-workshop/mqtt.* ~
+
+echo "-- Start EFM and Minifi"
 service efm start
 service minifi start
 
