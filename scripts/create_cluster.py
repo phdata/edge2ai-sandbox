@@ -52,12 +52,12 @@ with open ("/root/myRSAkey", "r") as f:
     key = f.read()
 
 
-instargs = cm_client.ApiHostInstallArguments(host_names=['YourHostname'], 
-                                             user_name='root', 
-                                             private_key=key, 
-                                             cm_repo_url='https://archive.cloudera.com/cm6/6.2.0', 
-                                             java_install_strategy='NONE', 
-                                             ssh_port=22, 
+instargs = cm_client.ApiHostInstallArguments(host_names=['YourHostname'],
+                                             user_name='root',
+                                             private_key=key,
+                                             cm_repo_url='https://archive.cloudera.com/cm6/6.3.0', 
+                                             java_install_strategy='NONE',
+                                             ssh_port=22,
                                              passphrase='')
 
 cmd = cm_api.host_install_command(body=instargs)
@@ -67,9 +67,9 @@ wait(cmd)
 mgmt_api = cm_client.MgmtServiceResourceApi(api_client)
 api_service = cm_client.ApiService()
 
-api_service.roles = [cm_client.ApiRole(type='SERVICEMONITOR'), 
-    cm_client.ApiRole(type='HOSTMONITOR'), 
-    cm_client.ApiRole(type='EVENTSERVER'),  
+api_service.roles = [cm_client.ApiRole(type='SERVICEMONITOR'),
+    cm_client.ApiRole(type='HOSTMONITOR'),
+    cm_client.ApiRole(type='EVENTSERVER'),
     cm_client.ApiRole(type='ALERTPUBLISHER')]
 
 mgmt_api.auto_assign_roles() # needed?

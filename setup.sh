@@ -175,8 +175,9 @@ yum install -y mosquitto
 pip install paho-mqtt
 systemctl enable mosquitto
 systemctl start mosquitto
-git clone https://github.com/phdata/edge2ai-workshop
-mv edge2ai-workshop/mqtt.* ~
+git clone https://github.com/phdata/edge2ai-workshop ~
+mv ~/edge2ai-workshop/mqtt.* ~
+mv ~/edge2ai-workshop/spark.iot* ~
 
 echo "-- Start EFM and Minifi"
 service efm start
