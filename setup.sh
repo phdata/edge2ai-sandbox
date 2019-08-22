@@ -175,7 +175,7 @@ yum install -y mosquitto
 pip install paho-mqtt
 systemctl enable mosquitto
 systemctl start mosquitto
-git clone https://github.com/phdata/edge2ai-workshop ~
+git clone https://github.com/phdata/edge2ai-workshop ~/edge2ai-workshop
 mv ~/edge2ai-workshop/mqtt.* ~
 mv ~/edge2ai-workshop/spark.iot* ~
 
