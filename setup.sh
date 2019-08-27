@@ -184,3 +184,111 @@ service efm start
 service minifi start
 
 echo "-- At this point you can login into Cloudera Manager host on port 7180 and follow the deployment of the cluster"
+
+
+#########################################################
+# utility functions
+#########################################################
+dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+starting_dir=`pwd`
+
+# logging function
+log() {
+    echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*"
+    echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*" >> $starting_dir/setup-all.log
+}
+# Load util functions.
+. $starting_dir/scripts/utils.sh
+
+
+#########################################################
+# BEGIN
+#########################################################
+log "BEGIN setup.sh"
+
+#####################################################
+# first check if JQ is installed
+#####################################################
+log "Installing jq"
+
+jq_v=`jq --version 2>&1`
+if [[ $jq_v = *"command not found"* ]]; then
+    if [[ $machine = "Mac" ]]; then
+        sudo curl -L -s -o jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64"
+    else
+        sudo curl -L -s -o jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"
+    fi
+    sudo chmod +x ./jq
+    sudo cp jq /usr/bin
+else
+    log "jq already installed. Skipping"
+fi
+
+jq_v=`jq --version 2>&1`
+if [[ $jq_v = *"command not found"* ]]; then
+    log "error installing jq. Please see README and install manually"
+    echo "Error installing jq. Please see README and install manually"
+    exit 1
+fi
+
+#########################################################
+# Install component "Supeset"
+#########################################################
+# Check CDSW again...  Runs long sometimes
+
+log "check status of cdsw before starting superset install"
+
+#echo "current dir before status check --> "`pwd`
+#check cdsw status
+#check_cdsw
+
+# Check CDSW again...  Runs long sometimes
+echo
+echo
+echo "Full Output of CDSW status..."
+echo
+echo
+cdsw status
+echo
+echo
+
+#check cdsw status again
+#check_cdsw
+
+# change to dir for superset
+cd $starting_dir/scripts/superset_setup.sh
+#echo "current dir at this stage --> "`pwd`
+#./bin/setup.sh
+
+# return to starting dir
+echo "ending dir at install of superset is --> "`pwd`
+cd $dir
+log "Completed install of Superset"
+
+#echo "current dir at the end of this script--> "`pwd`
+#echo "current value of dir variable is after superset -->"$dir
+
+#########################################################
+# load the nifi template via api
+#########################################################
+log "Load NiFi template"
+
+#  get the host ip:
+GETIP=`ip route get 1 | awk '{print $NF;exit}'`
+echo "GETIP --> "$GETIP
+
+#get the root process group id for the main canvas:
+ROOT_PG_ID=`curl -k -s GET http://$GETIP:8080/nifi-api/process-groups/root | jq -r '.id'`
+echo "root pg id -->"$ROOT_PG_ID
+
+# Upload the template
+echo "starting_dir --> "$starting_dir
+curl -k -s -F template=@"$starting_dir/templates/cdsw_rest_api.xml" -X POST http://$GETIP:8080/nifi-api/process-groups/$ROOT_PG_ID/templates/upload
+
+log "nifi template loaded"
+
+# return to starting dir
+#echo "ending dir is --> "`pwd`
+#cd $dir
+#log "Completed install of DNS"
