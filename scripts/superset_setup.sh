@@ -1,19 +1,6 @@
 #!/bin/bash
 
 #########################################################
-# utility functions
-#########################################################
-dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
-log_dir=`pwd`
-
-# logging function
-log() {
-    echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*"
-    echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*" >> $log_dir/setup.log
-}
-
-#########################################################
 # BEGIN
 #########################################################
 log "BEGIN setup.sh"
@@ -92,7 +79,7 @@ log "Install Superset requirements..."
 
 # change dir
 cd ~/superset-install-oneNode/supersetenv
-pip install -r $dir/conf/superset_requirements.txt
+pip install -r ${REPO_PATH}/conf/superset_requirements.txt
 
 log "Install Superset..."
 pip install superset
@@ -127,10 +114,10 @@ flask fab create-admin --username "admin" --firstname "Tom" --lastname "Brown" -
 
 # import the impala datasource with cli
 log "Import impala datasource"
-superset import_datasources -p $dir/conf/import_impala_data_source.yaml
+superset import_datasources -p ${REPO_PATH}/conf/import_impala_data_source.yaml
 
 # import the dashboard
-superset import_dashboards -p $dir/conf/edge2aiDashboard.json
+superset import_dashboards -p ${REPO_PATH}/conf/edge2aiDashboard.json
 
 # deactivate the virtualenv
 deactivate
@@ -140,13 +127,13 @@ deactivate
 #########################################################
 
 log "create systemd components for superset"
-cp $dir/conf/superset.service.template ~/superset-install-oneNode/superset.service
+cp ${REPO_PATH}/conf/superset.service.template ~/superset-install-oneNode/superset.service
 
 # create a softlink to the file
 ln -s ~/superset-install-oneNode/superset.service /etc/systemd/system/superset.service
 
 # copy shell startup script to destination
-cp $dir/superset_start.sh ~/superset-install-oneNode/superset_start.sh
+cp ${REPO_PATH}/scripts/superset_start.sh ~/superset-install-oneNode/superset_start.sh
 
 # create a softlink to the script
 ln -s ~/superset-install-oneNode/superset_start.sh /etc/init.d/superset

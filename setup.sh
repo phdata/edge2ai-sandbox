@@ -185,22 +185,21 @@ service minifi start
 
 echo "-- At this point you can login into Cloudera Manager host on port 7180 and follow the deployment of the cluster"
 
-
 #########################################################
 # utility functions
 #########################################################
-dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
-starting_dir=`pwd`
+export REPO_PATH=`pwd`
 
 # logging function
 log() {
     echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*"
-    echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*" >> $starting_dir/setup-all.log
+    echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*" >> ${REPO_PATH}/setup-all.log
 }
 
+export -f log
+
 # Load util functions.
-. $starting_dir/scripts/utils.sh
+. ${REPO_PATH}/scripts/utils.sh
 
 #####################################################
 # first check if JQ is installed
@@ -208,8 +207,8 @@ log() {
 log "Installing jq"
 
 jq_v=`jq --version 2>&1`
-if [[ $jq_v = *"command not found"* ]]; then
-    if [[ $machine = "Mac" ]]; then
+if [[ ${jq_v} = *"command not found"* ]]; then
+    if [[ ${machine} = "Mac" ]]; then
         sudo curl -L -s -o jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64"
     else
         sudo curl -L -s -o jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"
@@ -221,17 +220,15 @@ else
 fi
 
 jq_v=`jq --version 2>&1`
-if [[ $jq_v = *"command not found"* ]]; then
+if [[ ${jq_v} = *"command not found"* ]]; then
     log "error installing jq. Please see README and install manually"
     echo "Error installing jq. Please see README and install manually"
     exit 1
 fi
 
 #########################################################
-# Install component "Supeset"
+# Install component "Superset"
 #########################################################
-# Check CDSW again...  Runs long sometimes
-
 log "check status of cdsw before starting superset install"
 
 # Check CDSW again...  Runs long sometimes
@@ -245,12 +242,7 @@ echo
 echo
 
 # install superset
-$starting_dir/scripts/superset_setup.sh
-
-# return to starting dir
-echo "ending dir at install of superset is --> "`pwd`
-cd $dir
-log "Completed install of Superset"
+${REPO_PATH}/scripts/superset_setup.sh ## This is where the current error is.
 
 #########################################################
 # load the nifi template via api
@@ -259,14 +251,14 @@ log "Load NiFi template"
 
 #  get the host ip:
 GETIP=`ip route get 1 | awk '{print $NF;exit}'`
-echo "GETIP --> "$GETIP
+echo "GETIP --> "${GETIP}
 
 #get the root process group id for the main canvas:
-ROOT_PG_ID=`curl -k -s GET http://$GETIP:8080/nifi-api/process-groups/root | jq -r '.id'`
-echo "root pg id -->"$ROOT_PG_ID
+ROOT_PG_ID=`curl -k -s GET http://${GETIP}:8080/nifi-api/process-groups/root | jq -r '.id'`
+echo "root pg id -->"${ROOT_PG_ID}
 
 # Upload the template
-echo "starting_dir --> "$starting_dir
-curl -k -s -F template=@"$starting_dir/templates/cdsw_rest_api.xml" -X POST http://$GETIP:8080/nifi-api/process-groups/$ROOT_PG_ID/templates/upload
+echo "starting_dir --> "${REPO_PATH}
+curl -k -s -F template=@"${REPO_PATH}/templates/cdsw_rest_api.xml" -X POST http://${GETIP}:8080/nifi-api/process-groups/${ROOT_PG_ID}/templates/upload
 
 log "nifi template loaded"
