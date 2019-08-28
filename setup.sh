@@ -198,14 +198,9 @@ log() {
     echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*"
     echo -e "[$(date)] [$BASH_SOURCE: $BASH_LINENO] : $*" >> $starting_dir/setup-all.log
 }
+
 # Load util functions.
 . $starting_dir/scripts/utils.sh
-
-
-#########################################################
-# BEGIN
-#########################################################
-log "BEGIN setup.sh"
 
 #####################################################
 # first check if JQ is installed
@@ -239,10 +234,6 @@ fi
 
 log "check status of cdsw before starting superset install"
 
-#echo "current dir before status check --> "`pwd`
-#check cdsw status
-#check_cdsw
-
 # Check CDSW again...  Runs long sometimes
 echo
 echo
@@ -253,21 +244,13 @@ cdsw status
 echo
 echo
 
-#check cdsw status again
-#check_cdsw
-
-# change to dir for superset
-cd $starting_dir/scripts/superset_setup.sh
-#echo "current dir at this stage --> "`pwd`
-#./bin/setup.sh
+# install superset
+$starting_dir/scripts/superset_setup.sh
 
 # return to starting dir
 echo "ending dir at install of superset is --> "`pwd`
 cd $dir
 log "Completed install of Superset"
-
-#echo "current dir at the end of this script--> "`pwd`
-#echo "current value of dir variable is after superset -->"$dir
 
 #########################################################
 # load the nifi template via api
@@ -287,8 +270,3 @@ echo "starting_dir --> "$starting_dir
 curl -k -s -F template=@"$starting_dir/templates/cdsw_rest_api.xml" -X POST http://$GETIP:8080/nifi-api/process-groups/$ROOT_PG_ID/templates/upload
 
 log "nifi template loaded"
-
-# return to starting dir
-#echo "ending dir is --> "`pwd`
-#cd $dir
-#log "Completed install of DNS"

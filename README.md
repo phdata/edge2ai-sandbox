@@ -52,7 +52,6 @@ sudo su -
 yum install -y git
 git clone https://github.com/phdata/edge2ai-sandbox
 cd edge2ai-sandbox
-chmod +x setup.sh
 ```
 
 The script `setup.sh` takes 3 arguments:
@@ -117,7 +116,6 @@ sudo su -
 yum install -y git
 git clone https://github.com/phdata/edge2ai-sandbox
 cd edge2ai-sandbox
-chmod +x setup.sh
 ```
 
 **Step 3**: Create CDH Cluster
