@@ -114,10 +114,10 @@ flask fab create-admin --username "admin" --firstname "Tom" --lastname "Brown" -
 
 # import the impala datasource with cli
 log "Import impala datasource"
-superset import_datasources -p ${REPO_PATH}/conf/import_impala_data_source.yaml
+superset import_datasources -p ${REPO_PATH}/conf/superset_impala_data_source.yaml
 
 # import the dashboard
-superset import_dashboards -p ${REPO_PATH}/conf/edge2aiDashboard.json
+superset import_dashboards -p ${REPO_PATH}/conf/edge2ai_dashboard.json
 
 # deactivate the virtualenv
 deactivate

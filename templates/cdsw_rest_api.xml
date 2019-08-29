@@ -2,7 +2,7 @@
 <template encoding-version="1.2">
     <description></description>
     <groupId>73c58fb0-016c-1000-ffff-ffffda8429e9</groupId>
-    <name>finalCDSWrestAPI</name>
+    <name>CDSW Rest API</name>
     <snippet>
         <connections>
             <id>0a735039-94b5-3005-0000-000000000000</id>
@@ -2278,7 +2278,7 @@ Emulate incoming kafka msgs</label>
                 <name>failure</name>
             </relationships>
             <relationships>
-                <autoTerminate>false</autoTerminate>
+                <autoTerminate>true</autoTerminate>
                 <name>success</name>
             </relationships>
             <state>STOPPED</state>
@@ -3613,7 +3613,7 @@ Emulate incoming kafka msgs</label>
                     </entry>
                     <entry>
                         <key>Kudu Masters</key>
-                        <value>10.0.226.205:7051</value>
+                        <value>HOST_IP:7051</value>
                     </entry>
                     <entry>
                         <key>Flush Mode</key>
@@ -4669,7 +4669,7 @@ Emulate incoming kafka msgs</label>
                     </entry>
                     <entry>
                         <key>bootstrap.servers</key>
-                        <value>10.0.226.205:9092</value>
+                        <value>HOST_IP:9092</value>
                     </entry>
                     <entry>
                         <key>topic_type</key>

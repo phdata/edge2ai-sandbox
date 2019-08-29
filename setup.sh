@@ -253,12 +253,24 @@ log "Load NiFi template"
 GETIP=`ip route get 1 | awk '{print $NF;exit}'`
 echo "GETIP --> "${GETIP}
 
-#get the root process group id for the main canvas:
+# Get the root process group id for the main canvas:
 ROOT_PG_ID=`curl -k -s GET http://${GETIP}:8080/nifi-api/process-groups/root | jq -r '.id'`
 echo "root pg id -->"${ROOT_PG_ID}
+
+# Update the IP/hostname for Kafka and Kudu in the NiFi template
+sed -i "s/HOST_IP/${GETIP}/" templates/cdsw_rest_api.xml
 
 # Upload the template
 echo "starting_dir --> "${REPO_PATH}
 curl -k -s -F template=@"${REPO_PATH}/templates/cdsw_rest_api.xml" -X POST http://${GETIP}:8080/nifi-api/process-groups/${ROOT_PG_ID}/templates/upload
 
 log "nifi template loaded"
+
+#########################################################
+# Create the Kudu tables and views
+#########################################################
+log "Create Kudu tables and views"
+
+impala-shell -i localhost -f ${REPO_PATH}/scripts/nifi_kudu.sql
+
+log "Kudu tables and views created"
